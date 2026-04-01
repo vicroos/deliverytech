@@ -7,13 +7,14 @@ import org.springframework.stereotype.Service;
 import com.deliverytech.delivery.api.model.Cliente;
 import com.deliverytech.delivery.api.repository.ClienteRepository;
 
-@Service
-public class ClienteService {
-    private ClienteRepository repository;
+import lombok.RequiredArgsConstructor;
 
-    public ClienteService (ClienteRepository repository){
-        this.repository = repository;
-    }
+@Service
+@RequiredArgsConstructor 
+public class ClienteService {
+
+    private final ClienteRepository repository;
+
 
     public Cliente cadastrar(Cliente cliente){
         if( repository.existsByEmail(cliente.getEmail()) ){
@@ -46,7 +47,4 @@ public class ClienteService {
         cliente.setEndereco(dados.getEndereco());
         return repository.save(cliente);
     }
-
-
-    
 }
