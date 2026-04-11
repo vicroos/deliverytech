@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import com.deliverytech.delivery.api.enums.StatusPedido;
 import com.deliverytech.delivery.api.model.Cliente;
@@ -25,34 +27,37 @@ public class DataLoader {
     @Bean
     CommandLineRunner iniciarDados(
         ClienteRepository clienteRepository,
-        RestauranteRepository restauranteRepository,
         ProdutoRepository produtoRepository,
         PedidoRepository pedidoRepository,
-        ItemPedidoRepository itemPedidoRepository
+        ItemPedidoRepository itemPedidoRepository,
+        RestauranteRepository restauranteRepository
     ){
         return args ->{
             System.out.println("=====Inserindo Clientes======");
+            
 
             Cliente c1 = new Cliente();
             c1.setNome("João Freitas");
-            c1.setEmail("João@gmail.com");
-            c1.setTelefone("(11) 99999-8888");
-            c1.setEndereco("Rua das Flores, 123");
+            c1.setEmail("joao@gmail.com");
+            c1.setTelefone("119999-8888");
+            c1.setEndereco("av 1, 111");
             c1.setAtivo(true);
 
             Cliente c2 = new Cliente();
-            c2.setNome("Maria Silva");
-            c2.setEmail("Maria@gmail.com");
-            c2.setTelefone("(11) 99999-7777");
-            c2.setEndereco("Avenida Paulista, 456");
+            c2.setNome("Mariana Freitas");
+            c2.setEmail("mariana@gmail.com");
+            c2.setTelefone("119999-7777");
+            c2.setEndereco("av 2, 222");
             c2.setAtivo(true);
+
 
             Cliente c3 = new Cliente();
             c3.setNome("Joanna Silva");
-            c3.setEmail("joanna@gmail.com");
-            c3.setTelefone("(11) 9999-6666");
+            c3.setEmail("joanna@");
+            c3.setTelefone("119999-7777");
             c3.setEndereco("av 3, 333");
             c3.setAtivo(true);
+
 
             clienteRepository.saveAll(List.of(c1, c2, c3));
 
@@ -69,8 +74,9 @@ public class DataLoader {
             boolean existe = clienteRepository.existsByEmail("mariana@gmail.com");
             System.out.println("Existe Maria? " + existe);
 
+            Pageable pageable = PageRequest.of(0, 10);
             System.out.println("> Clientes ativos:");
-            clienteRepository.findByAtivoTrue()
+            clienteRepository.findByAtivoTrue(pageable)
                 .forEach(c -> System.out.println(c.getNome()));
 
             System.out.println("=====Inserindo Restaurante ======");
@@ -91,18 +97,19 @@ public class DataLoader {
             r2.setAvaliacao(new BigDecimal(4.2));
             r2.setAtivo(true);
 
-            restauranteRepository.saveAll(List.of(r1, r2));
+            restauranteRepository.save(r1);
+            restauranteRepository.save(r2);
 
             System.out.println("======Consultando Restaurante======");
 
             System.out.println("> Buscar Restaurante por Categoria:");
 
-            restauranteRepository.findByCategoria("Hamburgueria")
+            /* restauranteRepository.findByCategoria("Hamburgueria")
             .forEach(c -> System.out.println("Restaurante(Hamburgueria): " + c.getNome()));
 
             System.out.println("> Restaurantes ativos:");
             restauranteRepository.findByAtivoTrue()
-                .forEach(r -> System.out.println(r.getNome()));
+                .forEach(r -> System.out.println(r.getNome())); */
 
             System.out.println("=====Inserindo Produtos ======");
 
@@ -158,12 +165,9 @@ public class DataLoader {
             pedido2.setValorTotal(BigDecimal.ZERO);
             pedido2.setRestaurante(r2);
 
-
-
             pedidoRepository.saveAll(List.of(pedido1, pedido2));
 
             System.out.println("=====Inserindo ItensPedido ======");
-
             ItemPedido i1 = new ItemPedido();
             i1.setPedido(pedido1); 
             i1.setProduto(p1);
@@ -181,8 +185,20 @@ public class DataLoader {
 
             itemPedidoRepository.saveAll(List.of(i1, i2));
 
+            pedido1.setValorTotal(i1.getSubtotal().add(pedido1.getTaxaEntrega()));
+            pedido2.setValorTotal(i2.getSubtotal().add(pedido2.getTaxaEntrega()));
+            pedidoRepository.save(pedido1);
+            pedidoRepository.save(pedido2);
+
             System.out.println("=====DTO - Itens do pedido ======");
             itemPedidoRepository.buscarItensPorPedido(pedido1.getId())
+            .forEach(i -> System.out.println(
+                "Produto: " + i.getNomeProduto() +
+                "| Qtd: " + i.getQuantidade() + 
+                "| Subtotal: " + i.getSubtotal() 
+            ));
+
+            itemPedidoRepository.buscarItensPorPedido(pedido2.getId())
             .forEach(i -> System.out.println(
                 "Produto: " + i.getNomeProduto() +
                 "| Qtd: " + i.getQuantidade() + 

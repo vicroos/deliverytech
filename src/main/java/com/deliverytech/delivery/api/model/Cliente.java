@@ -30,4 +30,21 @@ public class Cliente {
 
     @OneToMany(mappedBy = "cliente", fetch=FetchType.LAZY)
     private List<Pedido> pedidos = new ArrayList<>();
+
+
+    public Boolean isAtivo(){
+        return ativo;
+    }
+
+
+    public String getNomeRestaurante() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getNomeRestaurante'");
+    }
+
+
+    public String getTotalVendas() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getTotalVendas'");
+    }
 }
