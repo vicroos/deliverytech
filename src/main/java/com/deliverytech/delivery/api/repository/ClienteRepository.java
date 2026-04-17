@@ -17,6 +17,6 @@ public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     Page<Cliente> findByAtivoTrue(Pageable pageable);
     List<Cliente> findByNomeContainingIgnoreCase(String nome);
 
-    
+    boolean existsByUsuarioId(Long usuarioId);
 }
 

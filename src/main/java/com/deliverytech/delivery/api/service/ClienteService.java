@@ -11,6 +11,7 @@ import com.deliverytech.delivery.api.dto.responses.ClienteResponseDTO;
 import com.deliverytech.delivery.api.exception.BusinessException;
 import com.deliverytech.delivery.api.exception.EntityNotFoundException;
 import com.deliverytech.delivery.api.model.Cliente;
+import com.deliverytech.delivery.api.model.Usuario;
 import com.deliverytech.delivery.api.repository.ClienteRepository;
 
 import jakarta.transaction.Transactional;
@@ -29,12 +30,25 @@ public class ClienteService {
     }
 
     @Transactional
-    public ClienteResponseDTO cadastrar(ClienteDTO dto){
+    public ClienteResponseDTO cadastrar(ClienteDTO dto, Usuario usuarioLogado){
+        if(usuarioLogado == null){
+            throw new BusinessException("Usuário não autenticado.");
+        }
+
+        if(!usuarioLogado.getRole().name().equals("CLIENTE")
+        && !usuarioLogado.getRole().name().equals("ADMIN")){
+            throw new BusinessException("Apenas CLIENTE ou ADMIN podem cadastrar um perfil de cliente.");
+        }
+        if(repository.existsByUsuarioId(usuarioLogado.getId())){
+            throw new BusinessException("Usuário já possui um perfil de cliente.");
+
+        }
         if( repository.existsByEmail(dto.getEmail()) ){
             throw new BusinessException("E-mail já cadastrado.");
         }
         Cliente cliente = mapper.map(dto, Cliente.class);
         cliente.setAtivo(true);
+        cliente.setUsuario(usuarioLogado); 
         Cliente salvo = repository.save(cliente);
 
         return mapper.map(salvo, ClienteResponseDTO.class);

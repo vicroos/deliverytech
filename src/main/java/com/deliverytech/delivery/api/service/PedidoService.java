@@ -20,6 +20,7 @@ import com.deliverytech.delivery.api.model.ItemPedido;
 import com.deliverytech.delivery.api.model.Pedido;
 import com.deliverytech.delivery.api.model.Produto;
 import com.deliverytech.delivery.api.model.Restaurante;
+import com.deliverytech.delivery.api.model.Usuario;
 import com.deliverytech.delivery.api.repository.ClienteRepository;
 import com.deliverytech.delivery.api.repository.ItemPedidoRepository;
 import com.deliverytech.delivery.api.repository.PedidoRepository;
@@ -46,13 +47,23 @@ public class PedidoService {
         return mapper.map(pedido, PedidoResponseDTO.class);
     }
 
-    public PedidoService(PedidoRepository pedidoRepository, ClienteRepository clienteRepository,
-            RestauranteRepository restauranteRepository, ItemPedidoRepository ItemPedidoRepository, ModelMapper mapper, ProdutoRepository produtoRepository) {
+    public PedidoService(
+            PedidoRepository pedidoRepository,
+            ClienteRepository clienteRepository,
+            RestauranteRepository restauranteRepository,
+            ItemPedidoRepository ItemPedidoRepository,
+            ModelMapper mapper,
+            ProdutoRepository produtoRepository) {
+
         this.pedidoRepository = pedidoRepository;
         this.clienteRepository = clienteRepository;
         this.restauranteRepository = restauranteRepository;
         this.produtoRepository = produtoRepository;
         this.mapper = mapper;
+    }
+
+        private PedidoResponseDTO toDTO(Pedido pedido) {
+        return mapper.map(pedido, PedidoResponseDTO.class);
     }
 
     @Transactional
@@ -98,6 +109,13 @@ public class PedidoService {
         return toResponseDTO(pedidoRepository.save(pedido));
     }
 
+        private void validarDonoPedido(Pedido pedido, Usuario usuarioLogado) {
+        if (!pedido.getCliente().getEmail().equals(usuarioLogado.getEmail())) {
+            throw new BusinessException("Você não tem permissão para acessar este pedido.");
+        }
+    }
+
+
     @Transactional
     public PedidoResponseDTO confirmarPedido(Long pedidoId){
         Pedido pedido = pedidoRepository.findById(pedidoId)
@@ -108,7 +126,7 @@ public class PedidoService {
         }
 
         pedido.setStatus(StatusPedido.CONFIRMADO);
-        return toResponseDTO(pedido);
+        return toResponseDTO(pedidoRepository.save(pedido));
     }
 
     @Transactional
@@ -128,18 +146,21 @@ public class PedidoService {
             default ->
                 throw new BusinessException("Status é inválido para avanço.");
         }
-        return toResponseDTO(pedido);
+        return toResponseDTO(pedidoRepository.save(pedido));
     }
 
+    @Transactional(readOnly = true)
     public Page<PedidoResponseDTO> listarPorCliente(Long clienteId, Pageable pageable) {
-        return pedidoRepository.findByClienteId(clienteId, pageable)
+        return pedidoRepository.buscarItensPorClientes(clienteId, pageable)
             .map(this::toResponseDTO);
     }
 
     @Transactional
-    public PedidoResponseDTO cancelarPedido(Long pedidoId){
+    public PedidoResponseDTO cancelarPedido(Long pedidoId, Usuario usuarioLogado){
         Pedido pedido = pedidoRepository.findById(pedidoId)
         .orElseThrow(()-> new EntityNotFoundException("Pedido não encontrado."));
+
+        validarDonoPedido(pedido, usuarioLogado);
 
         if(pedido.getStatus() == StatusPedido.ENTREGUE){
             throw new BusinessException("Pedido entregue não pode ser cancelado.");
@@ -150,27 +171,12 @@ public class PedidoService {
         return toResponseDTO(salvo);
     }
 
-    /* public ItemPedido adicionarItem(Long pedidoId, Long produtoId, Integer quantidade){
-        Pedido pedido = pedidoRepository.findById(pedidoId)
-        .orElseThrow(()-> new IllegalArgumentException("Pedido não encontrado."));
+    public Page<PedidoResponseDTO> meusPedidos(Usuario usuarioLogado, Pageable pageable) {
 
-        Produto produto = produtoRepository.findById(produtoId)
-            .orElseThrow(()-> new IllegalArgumentException("Produto não encontrado."));
+        Cliente cliente = clienteRepository.findByEmail(usuarioLogado.getEmail())
+                .orElseThrow(() -> new BusinessException("Cliente não encontrado."));
 
-        ItemPedido item = new ItemPedido();
-        item.setPedido(pedido);
-        item.setProduto(produto);
-        item.setQuantidade(quantidade);
-        item.setPrecoUnitario(produto.getPreco());
-
-        BigDecimal subtotal = produto.getPreco()
-            .multiply(BigDecimal.valueOf(quantidade));
-        item.setSubtotal(subtotal);
-        itemPedidoRepository.save(item);
-
-        pedido.setValorTotal(pedido.getValorTotal().add(subtotal));
-        pedidoRepository.save(pedido);
-
-        return item;
-    } */
+        return pedidoRepository.buscarItensPorClientes(cliente.getId(), pageable)
+                .map(this::toDTO);
+    }
 }

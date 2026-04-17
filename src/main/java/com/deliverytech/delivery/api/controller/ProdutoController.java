@@ -4,6 +4,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,6 +20,7 @@ import com.deliverytech.delivery.api.dto.requests.ProdutoDTO;
 import com.deliverytech.delivery.api.dto.responses.ApiResponse;
 import com.deliverytech.delivery.api.dto.responses.PagedResponse;
 import com.deliverytech.delivery.api.dto.responses.ProdutoResponseDTO;
+import com.deliverytech.delivery.api.model.Usuario;
 import com.deliverytech.delivery.api.service.ProdutoService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -37,6 +40,8 @@ public class ProdutoController {
         this.produtoService = produtoService;
     }
 
+    @PreAuthorize("hasRole('ADMIN', 'RESTAURANTE')")
+
     @Operation(summary = "Cadastrar novo produto em um restaurante.")
     @ApiResponses(value = {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "201", description = "Produto criado."),
@@ -45,7 +50,8 @@ public class ProdutoController {
     @PostMapping("/restaurante/{restauranteId}")
     public ResponseEntity<ApiResponse<ProdutoResponseDTO>> cadastrar(
             @PathVariable Long restauranteId, 
-            @RequestBody @Valid ProdutoDTO produto) {
+            @RequestBody @Valid ProdutoDTO produto,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
         
         ProdutoResponseDTO resposta = produtoService.cadastrar(restauranteId, produto);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -64,9 +70,14 @@ public class ProdutoController {
         return ResponseEntity.ok(new PagedResponse<>(pageResult));
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN','RESTAURANTE')")
     @Operation(summary = "Alternar disponibilidade do produto.")
     @PatchMapping("/{produtoId}/disponibilidade")
-    public ResponseEntity<ApiResponse<ProdutoResponseDTO>> toggleDisponibilidade(@PathVariable Long produtoId) {
-        return ResponseEntity.ok(new ApiResponse<>(produtoService.toggleDisponibilidade(produtoId)));
+    public ResponseEntity<ApiResponse<ProdutoResponseDTO>> toggleDisponibilidade(@PathVariable Long produtoId,
+            @AuthenticationPrincipal Usuario usuarioLogado) {
+        return ResponseEntity.ok(
+            new ApiResponse<>(
+                produtoService.toggleDisponibilidade(produtoId)));
     }
 }
