@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.deliverytech.delivery.api.dto.requests.ProdutoDTO;
 import com.deliverytech.delivery.api.dto.responses.ApiResponse;
 import com.deliverytech.delivery.api.dto.responses.PagedResponse;
-import com.deliverytech.delivery.api.dto.responses.ProdutoResponseDTO;
+import com.deliverytech.delivery.api.dto.responses.ProdutoResponse;
 import com.deliverytech.delivery.api.model.Usuario;
 import com.deliverytech.delivery.api.service.ProdutoService;
 
@@ -48,19 +48,19 @@ public class ProdutoController {
         @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Restaurante não encontrado.")
     })
     @PostMapping("/restaurante/{restauranteId}")
-    public ResponseEntity<ApiResponse<ProdutoResponseDTO>> cadastrar(
+    public ResponseEntity<ApiResponse<ProdutoResponse>> cadastrar(
             @PathVariable Long restauranteId, 
             @RequestBody @Valid ProdutoDTO produto,
             @AuthenticationPrincipal Usuario usuarioLogado) {
         
-        ProdutoResponseDTO resposta = produtoService.cadastrar(restauranteId, produto);
+        ProdutoResponse resposta = produtoService.cadastrar(restauranteId, produto);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ApiResponse<>(resposta));
     }
 
     @Operation(summary = "Listar produtos disponíveis de um restaurante (paginado).")
     @GetMapping("/restaurante/{restauranteId}")
-    public ResponseEntity<PagedResponse<ProdutoResponseDTO>> listarPorRestaurante(
+    public ResponseEntity<PagedResponse<ProdutoResponse>> listarPorRestaurante(
             @PathVariable Long restauranteId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -74,7 +74,7 @@ public class ProdutoController {
     @PreAuthorize("hasAnyRole('ADMIN','RESTAURANTE')")
     @Operation(summary = "Alternar disponibilidade do produto.")
     @PatchMapping("/{produtoId}/disponibilidade")
-    public ResponseEntity<ApiResponse<ProdutoResponseDTO>> toggleDisponibilidade(@PathVariable Long produtoId,
+    public ResponseEntity<ApiResponse<ProdutoResponse>> toggleDisponibilidade(@PathVariable Long produtoId,
             @AuthenticationPrincipal Usuario usuarioLogado) {
         return ResponseEntity.ok(
             new ApiResponse<>(

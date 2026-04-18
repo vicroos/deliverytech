@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import com.deliverytech.delivery.api.dto.requests.RestauranteDTO;
+import com.deliverytech.delivery.api.dto.requests.RestauranteRequest;
 import com.deliverytech.delivery.api.dto.responses.PagedResponse;
 import com.deliverytech.delivery.api.dto.responses.RestauranteResponseDTO;
 import com.deliverytech.delivery.api.service.RestauranteService;
@@ -53,7 +53,7 @@ public class RestauranteController {
         @ApiResponse(responseCode = "409", description = "Conflito: Nome de restaurante já existente.")
     })
     @PostMapping
-    public ResponseEntity<com.deliverytech.delivery.api.dto.responses.ApiResponse<RestauranteResponseDTO>> cadastrar(@Valid @RequestBody RestauranteDTO dados) {
+    public ResponseEntity<com.deliverytech.delivery.api.dto.responses.ApiResponse<RestauranteResponseDTO>> cadastrar(@Valid @RequestBody RestauranteRequest dados) {
         RestauranteResponseDTO response = service.cadastrar(dados);
 
         URI location = ServletUriComponentsBuilder

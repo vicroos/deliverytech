@@ -13,7 +13,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Schema(description = "Dados para criação de um novo pedido.")
-public class PedidoDTO {
+public class PedidoRequest {
 
     @Schema(description = "Endereço completo para entrega.", example = "Rua das Flores, 123, Bairro Centro")
     @NotBlank(message = "Endereço de entrega é obrigatório")
@@ -32,6 +32,4 @@ public class PedidoDTO {
     @NotNull(message = "A lista de itens não pode ser nula")
     @Size(min = 1, message = "O pedido deve ter pelo menos um item")
     private List<ItemPedidoDTO> itens;
- 
-
 }

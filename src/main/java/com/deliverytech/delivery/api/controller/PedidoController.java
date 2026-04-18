@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.deliverytech.delivery.api.model.Usuario;
-import com.deliverytech.delivery.api.dto.requests.PedidoDTO;
+import com.deliverytech.delivery.api.dto.requests.PedidoRequest;
 import com.deliverytech.delivery.api.dto.responses.ApiResponse;
 import com.deliverytech.delivery.api.dto.responses.PagedResponse;
 import com.deliverytech.delivery.api.dto.responses.PedidoResponseDTO;
@@ -44,7 +44,7 @@ public class PedidoController {
         description = "Pedido criado com sucesso."
     )
     @PostMapping
-    public ResponseEntity<ApiResponse<PedidoResponseDTO>> criar(@RequestBody @Valid PedidoDTO dto) {
+    public ResponseEntity<ApiResponse<PedidoResponseDTO>> criar(@RequestBody @Valid PedidoRequest dto) {
         return ResponseEntity.ok(new ApiResponse<>(pedidoService.criarPedido(dto)));
     }
 

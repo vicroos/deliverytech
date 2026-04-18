@@ -9,7 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.deliverytech.delivery.api.dto.requests.RestauranteDTO;
+import com.deliverytech.delivery.api.dto.requests.RestauranteRequest;
 import com.deliverytech.delivery.api.dto.responses.RestauranteResponseDTO;
 import com.deliverytech.delivery.api.enums.CategoriaRestaurante;
 import com.deliverytech.delivery.api.exception.BusinessException;
@@ -29,7 +29,7 @@ public class RestauranteService {
     }
 
     @Transactional
-    public RestauranteResponseDTO cadastrar(RestauranteDTO dto) {
+    public RestauranteResponseDTO cadastrar(RestauranteRequest dto) {
         if (repository.existsByNome(dto.getNome())) {
             throw new BusinessException("Restaurante com esse nome já cadastrado.");
         }

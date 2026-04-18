@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.deliverytech.delivery.api.dto.requests.ItemPedidoDTO;
-import com.deliverytech.delivery.api.dto.requests.PedidoDTO;
+import com.deliverytech.delivery.api.dto.requests.PedidoRequest;
 import com.deliverytech.delivery.api.dto.responses.PedidoResponseDTO;
 import com.deliverytech.delivery.api.enums.StatusPedido;
 import com.deliverytech.delivery.api.exception.BusinessException;
@@ -67,7 +67,7 @@ public class PedidoService {
     }
 
     @Transactional
-    public PedidoResponseDTO criarPedido(PedidoDTO dto) {
+    public PedidoResponseDTO criarPedido(PedidoRequest dto) {
         Cliente cliente = clienteRepository.findById(dto.getClienteId())
             .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado."));
 

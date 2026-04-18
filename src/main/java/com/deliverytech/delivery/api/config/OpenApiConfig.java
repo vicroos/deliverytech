@@ -32,17 +32,15 @@ public class OpenApiConfig {
                 new SecurityRequirement()
                 .addList("bearerAuth")
             )
-
             .info(new Info()
                 .title("Delivery API")
-                .description("Api para gerenciamento.")
+                .description("Documentação da API de Delivery com suporte a autenticação JWT.")
                 .version("1.0")
-                .contact(new Contact().name("Suporte").email("suporte@exemplo.com"))
+                .contact(new Contact().name("Suporte Tecnico").email("suporte@deliverytech.com"))
             )
             .servers(List.of(
                 new Server()
                 .url("http://localhost:8080")
-                .description("Servidor local")));
+                .description("Servidor de Desenvolvimento Local")));
     }
-
 }

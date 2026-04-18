@@ -16,11 +16,14 @@ import com.deliverytech.delivery.api.model.Usuario;
 import com.deliverytech.delivery.api.repository.UsuarioRepository;
 
 import org.springframework.web.bind.annotation.GetMapping;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping("/api/auth")
+@Tag(name = "Autenticação", description = "Endpoints para registro e login de usuários.")
 public class AuthController {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
@@ -34,6 +37,7 @@ public class AuthController {
         this.jwtUtill = jwtUtill;
     }
 
+    @Operation(summary = "Cadastrar novo usuário", description = "Cria uma nova conta de usuário. Regra: Não é permitido criar ADMIN diretamente.")
     @PostMapping("/cadastrar")
     public ResponseEntity<?> cadastrar(@RequestBody LoginRequestDTO request) {
         if (usuarioRepository.existsByEmail(request.getEmail())) {
@@ -53,6 +57,7 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Usuário cadastrado com sucesso");
     }
 
+    @Operation(summary = "Login de usuário", description = "Autentica um usuário e retorna um token JWT.")
     @PostMapping("/login")
     public ResponseEntity<?> Login(@RequestBody LoginRequestDTO login) {
         Usuario usuario = usuarioRepository.findByEmail(login.getEmail())
@@ -66,6 +71,7 @@ public class AuthController {
         return ResponseEntity.ok(new LoginResponseDTO(token, usuario.getEmail(), null, usuario.getRole()));
     }
 
+    @Operation(summary = "Obter dados do usuário logado", description = "Retorna os detalhes do usuário baseados no token JWT fornecido.")
     @GetMapping("/me")
     public ResponseEntity<Usuario> me(Authentication auth) {
         String email = auth.getName();

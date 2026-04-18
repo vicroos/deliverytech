@@ -6,7 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.deliverytech.delivery.api.dto.requests.ProdutoDTO;
-import com.deliverytech.delivery.api.dto.responses.ProdutoResponseDTO;
+import com.deliverytech.delivery.api.dto.responses.ProdutoResponse;
 import com.deliverytech.delivery.api.exception.BusinessException;
 import com.deliverytech.delivery.api.exception.EntityNotFoundException;
 import com.deliverytech.delivery.api.model.Produto;
@@ -28,8 +28,8 @@ public class ProdutoService {
         this.mapper = mapper;
     }
 
-    private ProdutoResponseDTO returnResponseDTO(Produto p) {
-        ProdutoResponseDTO dto = mapper.map(p, ProdutoResponseDTO.class);
+    private ProdutoResponse returnResponseDTO(Produto p) {
+        ProdutoResponse dto = mapper.map(p, ProdutoResponse.class);
         if (p.getRestaurante() != null) {
             dto.setRestauranteId(p.getRestaurante().getId());
         }
@@ -37,7 +37,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public ProdutoResponseDTO cadastrar(Long restauranteId, ProdutoDTO produto) {
+    public ProdutoResponse cadastrar(Long restauranteId, ProdutoDTO produto) {
         Restaurante restaurante = restauranteRepository.findById(restauranteId)
                 .orElseThrow(() -> new EntityNotFoundException("Restaurante não localizado."));
         
@@ -52,7 +52,7 @@ public class ProdutoService {
         return returnResponseDTO(produtoRepository.save(novoProduto));
     }
 
-    public Page<ProdutoResponseDTO> listarPorRestaurante(Long restauranteId, Pageable pageable) {
+    public Page<ProdutoResponse> listarPorRestaurante(Long restauranteId, Pageable pageable) {
         if (!restauranteRepository.existsById(restauranteId)) {
             throw new EntityNotFoundException("Restaurante não localizado.");
         }
@@ -60,14 +60,14 @@ public class ProdutoService {
                 .map(this::returnResponseDTO);
     }
 
-    public ProdutoResponseDTO buscarPorId(Long id) {
+    public ProdutoResponse buscarPorId(Long id) {
         Produto p = produtoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
         return returnResponseDTO(p);
     }
 
     @Transactional
-    public ProdutoResponseDTO toggleDisponibilidade(Long produtoId) {
+    public ProdutoResponse toggleDisponibilidade(Long produtoId) {
         Produto produto = produtoRepository.findById(produtoId)
                 .orElseThrow(() -> new EntityNotFoundException("Produto não encontrado"));
         produto.setDisponivel(!produto.isDisponivel());
