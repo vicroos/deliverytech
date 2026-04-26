@@ -12,7 +12,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.deliverytech.delivery.api.Security.JwtAuthenticationFilter;
+import com.deliverytech.delivery.api.security.JwtAuthenticationFilter;
 
 import jakarta.servlet.http.HttpServletResponse;
 

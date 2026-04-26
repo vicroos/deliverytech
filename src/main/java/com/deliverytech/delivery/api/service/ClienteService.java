@@ -8,11 +8,13 @@ import org.springframework.stereotype.Service;
 
 import com.deliverytech.delivery.api.dto.requests.ClienteDTO;
 import com.deliverytech.delivery.api.dto.responses.ClienteResponseDTO;
+import com.deliverytech.delivery.api.enums.Role;
 import com.deliverytech.delivery.api.exception.BusinessException;
 import com.deliverytech.delivery.api.exception.EntityNotFoundException;
 import com.deliverytech.delivery.api.model.Cliente;
 import com.deliverytech.delivery.api.model.Usuario;
 import com.deliverytech.delivery.api.repository.ClienteRepository;
+import com.deliverytech.delivery.api.repository.UsuarioRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -21,12 +23,14 @@ public class ClienteService {
 
 
     private final ClienteRepository repository;
+    private final UsuarioRepository usuarioRepository;
 
     private final ModelMapper mapper;
 
-    public ClienteService (ClienteRepository repository, ModelMapper mapper){
+    public ClienteService (ClienteRepository repository, ModelMapper mapper, UsuarioRepository usuarioRepository){
         this.repository = repository;
         this.mapper = mapper;
+        this.usuarioRepository = usuarioRepository;
     }
 
     @Transactional
@@ -35,8 +39,10 @@ public class ClienteService {
             throw new BusinessException("Usuário não autenticado.");
         }
 
-        if(!usuarioLogado.getRole().name().equals("CLIENTE")
-        && !usuarioLogado.getRole().name().equals("ADMIN")){
+        Usuario usuario = usuarioRepository.findById(usuarioLogado.getId())
+        .orElseThrow(() -> new EntityNotFoundException("Usuário autenticado não encontrado no banco de dados."));
+
+        if(usuarioLogado.getRole() != Role.CLIENTE && usuarioLogado.getRole() != Role.ADMIN){
             throw new BusinessException("Apenas CLIENTE ou ADMIN podem cadastrar um perfil de cliente.");
         }
         if(repository.existsByUsuarioId(usuarioLogado.getId())){

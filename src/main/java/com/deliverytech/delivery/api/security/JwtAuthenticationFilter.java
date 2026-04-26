@@ -1,4 +1,4 @@
-package com.deliverytech.delivery.api.Security;
+package com.deliverytech.delivery.api.security;
 
 import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

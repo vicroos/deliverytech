@@ -1,4 +1,4 @@
-package com.deliverytech.delivery.api.Security;
+package com.deliverytech.delivery.api.security;
 
 import java.security.Key;
 import java.util.Date;
